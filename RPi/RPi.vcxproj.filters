@@ -69,6 +69,12 @@
     <ClCompile Include="i2c.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="l3g4200d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="I2CSensorInterface.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gpio.h">
@@ -120,6 +126,18 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="i2c.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="l3g4200d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="I2CSensorInterface.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Orientation.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="lsm303dlhc.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

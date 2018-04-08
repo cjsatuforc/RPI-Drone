@@ -5,8 +5,9 @@
 #include "gpio.h"
 
 #include "definitions.h"
-#include "string.h"
+#include <cstring>
 #include <stdio.h>
+#include "string.h"
 
 rpi_screen_t rpiScreen;
 unsigned int gCursorX = 0;
@@ -161,8 +162,8 @@ void rpi_screen_t::outbyte(char b, unsigned int xReset)
 	}
 
 	unsigned char* cData = RPI_GetFontCharacter(b);
-	for (unsigned int j = 0; j < 12; j++)
-		for (unsigned int i = 0; i < 8; i++)
+	for (unsigned int j = 0; j < 12; ++j)
+		for (unsigned int i = 0; i < 8; ++i)
 		{
 			setPixel(gCursorX + i, gCursorY + j, ((cData[j] & (1 << (8 - i))) != 0) ? -1 : 0);
 		}
@@ -176,12 +177,12 @@ void rpi_screen_t::clear32(color32_t c)
 
 void rpi_screen_t::clear24(color24_t c)
 {
-	memset24(pData, (int)c, mWidth * mHeight);
+	memset(pData, (int)c, mWidth * mHeight * 3);
 }
 
 void rpi_screen_t::clear16(color16_t c)
 {
-	memset16(pData, (short)c, mWidth * mHeight);
+	memset(pData, (short)c, mWidth * mHeight * 2);
 }
 
 void rpi_screen_t::clear8(color8_t c)

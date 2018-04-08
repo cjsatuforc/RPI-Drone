@@ -51,12 +51,11 @@ _reset_:
 
     mov r0, #(CPSR_MODE_IRQ | CPSR_IRQ_INHIBIT | CPSR_FIQ_INHIBIT )
     msr cpsr_c, r0
-    mov sp, #0x7000
+    mov sp, #(63*1024*1024)
 
     mov r0, #(CPSR_MODE_SVR | CPSR_IRQ_INHIBIT | CPSR_FIQ_INHIBIT )
     msr cpsr_c, r0
-    mov sp, #0x8000
-
+    mov sp, #(64*1024*1024)
 	
     mrc p15,0,r0,c1,c0,0
 
@@ -65,8 +64,6 @@ _reset_:
     orr r0,#SCTLR_ENABLE_INSTRUCTION_CACHE
 
     mcr p15,0,r0,c1,c0,0
-
-
 
     MRC p15, #0, r1, c1, c0, #2
     ORR r1, r1, #(0xf << 20)

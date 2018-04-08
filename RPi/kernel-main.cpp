@@ -10,41 +10,13 @@
 
 #include "definitions.h"
 #include "i2c.h"
+#include "l3g4200d.h"
 #include <math.h>
 #include <stdio.h>
 
 volatile extern bool calculate_frame_count;
 volatile unsigned int tim;
 
-//template <typename T>
-//void drawInt(unsigned int x, unsigned int y, T _n)
-//{
-//	int64_t n = _n;
-//	char text[30];
-//	for (unsigned int i = 0; i < 30; ++i)
-//		text[i] = 0;
-//
-//	int idx = 0;
-//	if (n < 0)
-//		text[idx++] = '-';
-//	n = n < 0 ? -n : n;
-//	bool first = true;
-//	for (unsigned int i = 29; i != -1; --i)
-//	{
-//		char c = '0' + ((n / (int64_t)(powf(10.0f, (float)i) + 0.5f)) % 10);
-//		if (!first || c != '0')
-//		{
-//			first = false;
-//			text[idx++] = c;
-//		}
-//	}
-//
-//	if (text[0] == 0)
-//		text[0] = '0';
-//
-//	RPI_GetScreen()->drawText(x, y, text);
-//}
-//
 void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 {
 	//*** GRAPHICS ***//
@@ -76,9 +48,9 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	//	RPI_ARMTIMER_CTRL_INT_ENABLE |
 	//	RPI_ARMTIMER_CTRL_PRESCALE_256;
 
-	//_enable_interrupts();
+	_enable_interrupts();
 
-	//RPI_AuxMiniUartInit(115200, 8);
+	RPI_AuxMiniUartInit(115200, 8);
 
 	rpi_mailbox_property_t* mp;
 	RPI_PropertyAddTag(TAG_GET_MAX_CLOCK_RATE, TAG_CLOCK_ARM);
@@ -89,19 +61,11 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	RPI_PropertyAddTag(TAG_SET_CLOCK_RATE, TAG_CLOCK_ARM, mp->data.buffer_32[1]);
 	RPI_PropertyProcess();
 
-	//while (true)
-	//{
-	//	RPI_AuxMiniUartWrite('a');
-	//	RPI_WaitMicroSeconds(1000000);
-	//}
-
-	rpi_screen_t* screen = RPI_GetScreen();
-	screen->init(width, height, bpp, pitch);
-
-	char message[64] = "Hello, World!";
-	
-	screen->setBackgroundColor(color32_t(200, 70, 255, 255));
-	screen->setForegroundColor(color32_t(255, 255, 255, 255));
+	//rpi_screen_t* screen = RPI_GetScreen();
+	//screen->init(width, height, bpp, pitch);
+	//
+	//screen->setBackgroundColor(color32_t(200, 70, 255, 255));
+	//screen->setForegroundColor(color32_t(255, 255, 255, 255));
 	
 	//char text[8192];
 	//for (int i = 0; i < 8192; i++)
@@ -109,33 +73,51 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	//RPI_SPI0Init();
 	unsigned char v = 0;
 	rpi_sys_timer_t* systimer = RPI_GetSystemTimer();
-	uint32_t beginTime = systimer->counter_lo;
 	RPI_I2C1Init();
 
+	L3G4200D gyro;
+	gyro.SetBandwidth(BWLow);
+	gyro.SetHPFEnabled(false);
+	gyro.SetLPFEnabled(true);
+	gyro.SetFullScale(FS250);
+	gyro.SetOutputDataRate(ODR800Hz);
+	gyro.SetPower(true);
+	gyro.Calibrate();
 
-
+	uint32_t beginTime = systimer->counter_lo;
+	uint32_t overrunCount = 0;
 	while (true)
 	{
+		while (RPI_AuxMiniUartAvailable())
+		{
+			RPI_AuxMiniUartWrite(RPI_AuxMiniUartRead());
+		}
+		gyro.Tick();
+		if (gyro.HasOverrun())
+		{
+			if (++overrunCount > 2)
+			{
+				printf("Gyro overrun!\r\n");
+				RPI_SetGpioLo(RPI_GPIO47); //Turn LED on
+			}
+		}
+		else
+		{
+			overrunCount = 0;
+			RPI_SetGpioHi(RPI_GPIO47); //Turn LED off
+		}
+		//if (gyro.HasNewData())
+		//	printf("%.1f     %.1f    %.1f\r\n", gyro.GetX(), gyro.GetY(), gyro.GetZ());
+
 		if (systimer->counter_lo - beginTime >= 1000000)
 		{
-			screen->clear();
-			printf("%i\n", frame_count);
-			uint8_t whoami;
-			rpi_i2c_t* i2c = RPI_GetI2C1();
-			int e = 0;
-			uint8_t reg = 0xF;
-			i2c->write(0x69, &reg, 1);
-			if ((e = i2c->read(0x69, &whoami, 1)) == 0)
-			{
-				printf("%u\n", whoami);
-			}
-			else
-			{
-				printf("%i\n", e);
-			}
-			
+			//uint32_t t = systimer->counter_lo;
+			//screen->clear();
+			//
+			printf("%u iterations per second\r\n", frame_count);
+
 			frame_count = 0;
-			beginTime = RPI_GetSystemTimer()->counter_lo;
+			beginTime = systimer->counter_lo;
 		}
 
 		++frame_count;

@@ -234,8 +234,8 @@ int wait( int *status )
 
 void outbyte( char b )
 {
-	RPI_GetScreen()->outbyte(b, 0);
-    //RPI_AuxMiniUartWrite( b );
+	//RPI_GetScreen()->outbyte(b, 0);
+    RPI_AuxMiniUartWrite( b );
 }
 
 /* Write to a file. libc subroutines will use this system routine for output to

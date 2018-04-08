@@ -18,8 +18,7 @@ void RPI_AuxMiniUartInit(int baud, int bits)
 
 	auxillary->MU_IER = 0;
 	auxillary->MU_CNTL = 0;
-
-	auxillary->MU_LCR = 3;
+	auxillary->MU_LCR_8BIT_MODE = bits == 8;
 	
 	auxillary->MU_MCR = 0;
 	auxillary->MU_IER = 0;
@@ -28,7 +27,7 @@ void RPI_AuxMiniUartInit(int baud, int bits)
 	auxillary->MU_BAUD = (SYS_FREQ / (8 * baud)) - 1;
 
 	RPI_SetGpioPinFunction(RPI_GPIO14, FS_ALT5);
-	//RPI_SetGpioPinFunction(RPI_GPIO15, FS_ALT5);
+	RPI_SetGpioPinFunction(RPI_GPIO15, FS_ALT5);
 
 	RPI_GetGpio()->GPPUD = 0;
 	for (i = 0; i < 150; i++) {}
@@ -42,20 +41,24 @@ void RPI_AuxMiniUartInit(int baud, int bits)
 
 void RPI_AuxMiniUartWrite(char c)
 {
-	while (!(auxillary->MU_LSR & 0x20))
+	while (!(auxillary->MU_LSR_TX_EMPTY))
 		;
 
-	auxillary->MU_IO = 0x30 + c;
-	//auxillary->MU_IO_TX = c;
+	auxillary->MU_IO_TX = c;
 }
 
 int RPI_AuxMiniUartRead()
 {
-	if (auxillary->MU_LCR_DLAB_ACCESS)
+	if (!auxillary->MU_LCR_DLAB_ACCESS)
 	{
 		while (auxillary->MU_LSR_DATA_READY == 0)
 			;
 		return auxillary->MU_IO_RX;
 	}
 	return -1;
+}
+
+int RPI_AuxMiniUartAvailable()
+{
+	return auxillary->MU_STAT_RX_FIFO_LEVEL;
 }

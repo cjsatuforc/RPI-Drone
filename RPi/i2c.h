@@ -2,12 +2,13 @@
 
 #include "definitions.h"
 #include "rpi-base.h"
+#include <stdio.h>
 
 #define I2C0_BASE (PERIPHERAL_BASE + 0x205000)
 #define I2C1_BASE (PERIPHERAL_BASE + 0x804000)
 #define I2C2_BASE (PERIPHERAL_BASE + 0x805000)
 
-typedef struct
+typedef struct rpi_i2c_t
 {
 	union
 	{
@@ -113,49 +114,12 @@ typedef struct
 	//2: NACK
 	//3: timeout
 	//4: not all bytes written?
-	uint8_t write(uint8_t addr, const uint8_t* data, uint32_t size)
-	{
-		if (data == nullptr)
-			return 1;
-		uint16_t remaining = size;
+	uint8_t write(uint8_t addr, const uint8_t* data, uint32_t size);
 
-		A_ADDR = addr;
-		C_CLEAR = 1;
-		S_ERR = 1;
-		S_CLKT = 1;
-		S_DONE = 1;
-		DLEN = size;
-
-		int i = 0;
-		while (remaining && (i < 16)) {
-			FIFO_DATA = data[i++];
-			--remaining;
-		}
-
-		C_ST = 1;
-		while (!S_DONE)
-		{
-			if (remaining && S_TXD)
-			{
-				FIFO_DATA = data[i++];
-				--remaining;
-			}
-		}
-
-		int ret = 0;
-		if (S_ERR)
-			ret = 2;
-		else if (S_CLKT)
-			ret = 3;
-		else if (remaining)
-			ret = 4;
-
-		S_ERR = 1;
-		S_CLKT = 1;
-		S_DONE = 1;
-		
-		return ret;
-	}
+	//uint8_t write(uint8_t addr, uint8_t d)
+	//{
+	//	return write(addr, &d, 1);
+	//}
 
 	//Returns error code or number of bytes read
 	//0: no error
@@ -163,53 +127,7 @@ typedef struct
 	//2: NACK
 	//3: timeout
 	//4: not all bytes read?
-	uint8_t read(uint8_t addr, uint8_t* data, uint32_t size)
-	{
-		if (data == nullptr)
-			return 1;
-		uint16_t remaining = size;
-		
-		A_ADDR = addr;
-		C_CLEAR = 1;
-		S_ERR = 1;
-		S_CLKT = 1;
-		S_DONE = 1;
-
-		DLEN = size;
-
-		//C_REG = (1 << 15) | (1 << 7) | (1 << 0);
-		C_READ = 1;
-		C_ST = 1;
-		int i = 0;
-		while (!S_DONE)
-		{
-			if (S_RXD)
-			{
-				data[i++] = FIFO_DATA;
-				--remaining;
-			}
-		}
-
-		while (remaining && S_RXD)
-		{
-			data[i++] = FIFO_DATA;
-			--remaining;
-		}
-
-		int ret = 0;
-		if (S_ERR)
-			ret = 2;
-		else if (S_CLKT)
-			ret = 3;
-		else if (remaining)
-			ret = 4;
-		
-		S_ERR = 1;
-		S_CLKT = 1;
-		S_DONE = 1;
-
-		return ret;
-	}
+	uint8_t read(uint8_t addr, uint8_t* data, uint32_t size);
 
 } rpi_i2c_t;
 

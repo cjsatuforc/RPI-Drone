@@ -1,5 +1,5 @@
 #include "color.h"
-#include "string.h"
+#include <cstring>
 
 color32_t::color32_t() {
 	mA = 255;
