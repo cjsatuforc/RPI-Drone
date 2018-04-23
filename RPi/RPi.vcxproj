@@ -66,7 +66,10 @@
     <NMakeOutput />
     <NMakePreprocessorDefinitions>_HAVE_STDC;RPI0;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>arm-none-eabi-g++ -O4 -std=c++11 -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -nostartfiles *.cpp *.c *.s -o bin/kernel.elf
-arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img</NMakeBuildCommandLine>
+arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img
+arm-none-eabi-objcopy bin/kernel.elf -O ihex bin/kernel.hex
+"bin/rpiload.exe" bin/kernel.hex COM4
+putty -load "Raspi UART"</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine />
     <IncludePath>C:\Program Files %28x86%29\GNU Tools ARM Embedded\4.7 2013q3\arm-none-eabi\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>

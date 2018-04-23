@@ -11,6 +11,7 @@ public:
 	void SetAddress(uint8_t addr);
 	uint8_t ReadRegister8(uint8_t addr, uint8_t* data);
 	uint8_t WriteRegister8(uint8_t addr, uint8_t data);
+	uint8_t RequestFrom(uint8_t addr, uint8_t size, uint8_t* data);
 
 private:
 	uint8_t mSensorAddress;

@@ -96,4 +96,9 @@ _enable_interrupts:
 .global PUT32
 PUT32:
 	str r1,[r0]
-	mov pc, lr
+	bx lr
+
+.global GET32
+GET32:
+	ldr r0,[r0]
+	bx lr

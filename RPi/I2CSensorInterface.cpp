@@ -36,3 +36,14 @@ uint8_t I2CSensorInterface::WriteRegister8(uint8_t addr, uint8_t data)
 	uint8_t msg[2] = { addr, data };
 	return mI2CBus->write(mSensorAddress, msg, 2);
 }
+
+uint8_t I2CSensorInterface::RequestFrom(uint8_t addr, uint8_t size, uint8_t* data)
+{
+	uint8_t e = 0;
+	addr |= 1 << 7;
+	e = mI2CBus->write(mSensorAddress, &addr, 1);
+	if (e != 0)
+		return e;
+
+	return mI2CBus->read(mSensorAddress, data, size);
+}

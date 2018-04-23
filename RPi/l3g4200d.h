@@ -50,9 +50,9 @@ public:
 	int16_t GetRawY() const;
 	int16_t GetRawZ() const;
 
-	long double GetX() const;
-	long double GetY() const;
-	long double GetZ() const;
+	float GetX() const;
+	float GetY() const;
+	float GetZ() const;
 
 private:
 	void UpdateLPFHPFConfig();

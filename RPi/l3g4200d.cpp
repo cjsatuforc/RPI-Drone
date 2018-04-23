@@ -109,12 +109,13 @@ void L3G4200D::Calibrate()
 	long double x = 0.0L, y = 0.0L, z = 0.0L;
 
 	size_t n = 1600;
-	while (n > 0)
+	size_t i = 0;
+	while (i < n)
 	{
 		Tick();
 		if (HasNewData())
 		{
-			--n;
+			++i;
 			x += GetRawX();
 			y += GetRawY();
 			z += GetRawZ();
@@ -130,11 +131,6 @@ void L3G4200D::Calibrate()
 
 void L3G4200D::Tick()
 {
-	uint64_t curMs = RPI_GetSystemTimer()->counter();
-	float deltaTime = (long double)(curMs - mLastTickMs) / 1000000.0L;
-	mLastTickMs = curMs;
-	mTimeSinceLastRead += deltaTime;
-
 	uint8_t stat = 0;
 	uint8_t e = ReadRegister8(0x27, &stat);
 	if (e != 0)
@@ -142,41 +138,19 @@ void L3G4200D::Tick()
 
 	mHasNewData = stat & (1 << 3);
 	mHasOverrun = stat & (1 << 7);
+	uint64_t curMs = RPI_GetSystemTimer()->counter();
+	float deltaTime = (long double)(curMs - mLastTickMs) / 1000000.0L;
+	mLastTickMs = curMs;
 	if (mHasNewData)
 	{
-		mRawX = 0;
-		mRawY = 0;
-		mRawZ = 0;
-		uint8_t res = 0;
-		e = ReadRegister8(0x28, &res);
+		uint8_t data[6];
+		e = RequestFrom(0x28, 6, data);
 		if (e != 0)
 			printf("Error: %u", e);
-		mRawX |= res;
 
-		e = ReadRegister8(0x29, &res);
-		if (e != 0)
-			printf("Error: %u", e);
-		mRawX |= res << 8;
-
-		e = ReadRegister8(0x2a, &res);
-		if (e != 0)
-			printf("Error: %u", e);
-		mRawY |= res;
-
-		e = ReadRegister8(0x2b, &res);
-		if (e != 0)
-			printf("Error: %u", e);
-		mRawY |= res << 8;
-
-		e = ReadRegister8(0x2c, &res);
-		if (e != 0)
-			printf("Error: %u", e);
-		mRawZ |= res;
-
-		e = ReadRegister8(0x2d, &res);
-		if (e != 0)
-			printf("Error: %u", e);
-		mRawZ |= res << 8;
+		mRawX = data[0] | (data[1] << 8);
+		mRawY = data[2] | (data[3] << 8);
+		mRawZ = data[4] | (data[5] << 8);
 
 		if (mIsCalibrated)
 		{
@@ -193,6 +167,7 @@ void L3G4200D::Tick()
 
 		mTimeSinceLastRead = 0.0f;
 	}	
+	mTimeSinceLastRead += deltaTime;
 }
 
 bool L3G4200D::HasNewData() const
@@ -225,17 +200,17 @@ int16_t L3G4200D::GetRawZ() const
 	return mRawZ;
 }
 
-long double L3G4200D::GetX() const
+float L3G4200D::GetX() const
 {
 	return mX;
 }
 
-long double L3G4200D::GetY() const
+float L3G4200D::GetY() const
 {
 	return mY;
 }
 
-long double L3G4200D::GetZ() const
+float L3G4200D::GetZ() const
 {
 	return mZ;
 }
