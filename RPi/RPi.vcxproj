@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6557ADAA-1A07-4C1D-90E7-D88729502AE0}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Pi 0|ARM'" Label="Configuration">
@@ -68,8 +68,7 @@
     <NMakeBuildCommandLine>arm-none-eabi-g++ -O4 -std=c++11 -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -nostartfiles *.cpp *.c *.s -o bin/kernel.elf
 arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img
 arm-none-eabi-objcopy bin/kernel.elf -O ihex bin/kernel.hex
-"bin/rpiload.exe" bin/kernel.hex COM4
-putty -load "Raspi UART"</NMakeBuildCommandLine>
+"bin/rpiload.exe" bin/kernel.hex COM4 "Raspi UART"</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine />
     <IncludePath>C:\Program Files %28x86%29\GNU Tools ARM Embedded\4.7 2013q3\arm-none-eabi\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -100,7 +99,14 @@ arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img</NMakeBuildCommand
     <IncludePath>
     </IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Pi 0|ARM'">
+    <PostBuildEvent>
+      <Command>arm-none-eabi-g++ -O4 -std=c++11 -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -nostartfiles *.cpp *.c *.s -o bin/kernel.elf
+arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img
+arm-none-eabi-objcopy bin/kernel.elf -O ihex bin/kernel.hex
+"bin/rpiload.exe" bin/kernel.hex COM4
+putty -load "Raspi UART"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -116,6 +122,7 @@ arm-none-eabi-objcopy bin/kernel.elf -O binary bin/kernel.img</NMakeBuildCommand
     <ClCompile Include="icxxabi.cpp" />
     <ClCompile Include="interrupts.cpp" />
     <ClCompile Include="l3g4200d.cpp" />
+    <ClCompile Include="lsm303dlhc.cpp" />
     <ClCompile Include="mailbox-interface.c" />
     <ClCompile Include="mailbox.cpp" />
     <ClCompile Include="kernel-main.cpp" />

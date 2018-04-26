@@ -20,7 +20,7 @@ L3G4200D::L3G4200D() :
 	RPI_WaitMicroSeconds(10);
 }
 
-void L3G4200D::SetOutputDataRate(L3G4200DOutputDataRate ODR)
+void L3G4200D::SetOutputDataRate(OutputDataRate ODR)
 {
 	if (mODR != ODR)
 	{
@@ -37,7 +37,7 @@ void L3G4200D::SetOutputDataRate(L3G4200DOutputDataRate ODR)
 	}
 }
 
-void L3G4200D::SetBandwidth(L3G4200DBandwidth BW)
+void L3G4200D::SetBandwidth(Bandwidth BW)
 {
 	if (mBW != BW)
 	{
@@ -54,7 +54,7 @@ void L3G4200D::SetBandwidth(L3G4200DBandwidth BW)
 	}
 }
 
-void L3G4200D::SetFullScale(L3G4200DFullScale FS)
+void L3G4200D::SetFullScale(FullScale FS)
 {
 	if (FS == mFS)
 		return;
@@ -108,7 +108,7 @@ void L3G4200D::Calibrate()
 {
 	long double x = 0.0L, y = 0.0L, z = 0.0L;
 
-	size_t n = 1600;
+	size_t n = 8000;
 	size_t i = 0;
 	while (i < n)
 	{

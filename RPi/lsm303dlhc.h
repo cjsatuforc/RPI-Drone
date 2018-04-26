@@ -21,6 +21,17 @@ public:
 
 	void Calibrate();
 	void Tick();
+	bool HasNewData() const;
+	bool HasOverrun() const;
+	bool IsCalibrated() const;
+
+	int16_t GetRawX() const;
+	int16_t GetRawY() const;
+	int16_t GetRawZ() const;
+
+	float GetX() const;
+	float GetY() const;
+	float GetZ() const;
 
 private:
 	FullScale mFullScale;

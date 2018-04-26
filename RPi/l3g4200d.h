@@ -2,39 +2,37 @@
 
 #include "I2CSensorInterface.h"
 
-enum L3G4200DFullScale
-{
-	FS250 = 0b00,
-	FS500 = 0b01,
-	FS2000 = 0b10
-};
-
-enum L3G4200DOutputDataRate
-{
-	ODR100Hz = 0b00,
-	ODR200Hz = 0b01,
-	ODR400Hz = 0b10,
-	ODR800Hz = 0b11
-};
-
-enum L3G4200DBandwidth
-{
-	BWLow = 0b00,
-	BWMediumLow = 0b01,
-	BWMediumHigh = 0b10,
-	BWHigh = 0b11
-};
-
 class L3G4200D : public I2CSensorInterface
 {
 public:
+	enum FullScale
+	{
+		FS250 = 0b00,
+		FS500 = 0b01,
+		FS2000 = 0b10
+	};
+
+	enum OutputDataRate
+	{
+		ODR100Hz = 0b00,
+		ODR200Hz = 0b01,
+		ODR400Hz = 0b10,
+		ODR800Hz = 0b11
+	};
+	enum Bandwidth
+	{
+		BWLow = 0b00,
+		BWMediumLow = 0b01,
+		BWMediumHigh = 0b10,
+		BWHigh = 0b11
+	}; 
 	L3G4200D();
 	L3G4200D(const L3G4200D& other) = delete;
 	L3G4200D(L3G4200D&& other) = delete;
 
-	void SetOutputDataRate(L3G4200DOutputDataRate ODR);
-	void SetBandwidth(L3G4200DBandwidth BW);
-	void SetFullScale(L3G4200DFullScale FS);
+	void SetOutputDataRate(OutputDataRate ODR);
+	void SetBandwidth(Bandwidth BW);
+	void SetFullScale(FullScale FS);
 	void SetPower(bool val);
 	void SetLPFEnabled(bool val);
 	void SetHPFEnabled(bool val);
@@ -78,9 +76,9 @@ private:
 	bool mLPFEnabled;
 	bool mHPFEnabled;
 
-	L3G4200DOutputDataRate mODR = ODR100Hz;
-	L3G4200DBandwidth mBW = BWLow;
-	L3G4200DFullScale mFS = FS250;
+	OutputDataRate mODR = ODR100Hz;
+	Bandwidth mBW = BWLow;
+	FullScale mFS = FS250;
 
 	float GetSensitivityCorrection() const;
 

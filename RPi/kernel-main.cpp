@@ -73,11 +73,11 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	RPI_I2C1Init();
 
 	L3G4200D gyro;
-	gyro.SetBandwidth(BWLow);
+	gyro.SetBandwidth(L3G4200D::BWLow);
 	gyro.SetHPFEnabled(false);
 	gyro.SetLPFEnabled(true);
-	gyro.SetFullScale(FS250);
-	gyro.SetOutputDataRate(ODR800Hz);
+	gyro.SetFullScale(L3G4200D::FS250);
+	gyro.SetOutputDataRate(L3G4200D::ODR800Hz);
 	gyro.SetPower(true);
 	gyro.Calibrate();
 
