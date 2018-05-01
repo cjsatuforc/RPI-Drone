@@ -17,13 +17,26 @@ public:
 		FS8G = 0b10, //+/-8G
 		FS16G = 0b11 //+/-16G
 	};
+	enum OutputDataRate
+	{
+		PowerDown = 0b0000,
+		Normal_LowPower_1Hz = 0b0001,
+		Normal_LowPower_10Hz = 0b0010,
+		Normal_LowPower_25Hz = 0b0011,
+		Normal_LowPower_50Hz = 0b0100,
+		Normal_LowPower_100Hz = 0b0101,
+		Normal_LowPower_200Hz = 0b0110,
+		Normal_LowPower_400Hz = 0b0111,
+		LowPower_1620Hz = 0b1000,
+		Normal_1344Hz_LowPower_5376Hz = 0b1001
+	};
 	void SetFullScale(FullScale FS);
+	void SetOutputDataRate(OutputDataRate ODR);
+	void SetHighResolution(bool val);
 
-	void Calibrate();
 	void Tick();
 	bool HasNewData() const;
 	bool HasOverrun() const;
-	bool IsCalibrated() const;
 
 	int16_t GetRawX() const;
 	int16_t GetRawY() const;
@@ -34,7 +47,24 @@ public:
 	float GetZ() const;
 
 private:
-	FullScale mFullScale;
+	int16_t mRawX;
+	int16_t mRawY;
+	int16_t mRawZ;
+
+	int16_t mAvgX;
+	int16_t mAvgY;
+	int16_t mAvgZ;
+
+	float mX;
+	float mY;
+	float mZ;
+
+	bool mHasNewData;
+	bool mHasOverrun;
+	FullScale mFS = FS2G;
+	OutputDataRate mODR = PowerDown;
+	bool mHighResolution = false;
+	float GetSensitivityCorrection() const;
 };
 
 class LSM303DLHCMagnetometer : public I2CSensorInterface

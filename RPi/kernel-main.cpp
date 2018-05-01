@@ -11,6 +11,7 @@
 #include "definitions.h"
 #include "i2c.h"
 #include "l3g4200d.h"
+#include "lsm303dlhc.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -72,6 +73,11 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	rpi_sys_timer_t* systimer = RPI_GetSystemTimer();
 	RPI_I2C1Init();
 
+	LSM303DLHCAccelerometer accel;
+	accel.SetHighResolution(true);
+	accel.SetOutputDataRate(LSM303DLHCAccelerometer::Normal_1344Hz_LowPower_5376Hz);
+	accel.SetFullScale(LSM303DLHCAccelerometer::FS2G);
+
 	L3G4200D gyro;
 	gyro.SetBandwidth(L3G4200D::BWLow);
 	gyro.SetHPFEnabled(false);
@@ -82,7 +88,7 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 	gyro.Calibrate();
 
 	uint32_t lastFrameTime = systimer->counter_lo;
-	uint32_t lastGyroTime = systimer->counter_lo;
+	uint32_t lastOutputTime = systimer->counter_lo;
 	uint32_t overrunCount = 0;
 	while (true)
 	{
@@ -91,10 +97,11 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 			if (RPI_AuxMiniUartRead() == 'r')
 				reboot();
 		}
+		accel.Tick();
 		gyro.Tick();
-		if (gyro.HasOverrun())
+		if (gyro.HasOverrun() || accel.HasOverrun())
 		{
-			if (++overrunCount > 2)
+			if (++overrunCount > 0)
 			{
 				//printf("Gyro overrun!\r\n");
 				RPI_SetGpioLo(RPI_GPIO47); //Turn LED on
@@ -105,10 +112,10 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 			overrunCount = 0;
 			RPI_SetGpioHi(RPI_GPIO47); //Turn LED off
 		}
-		if (systimer->counter_lo - lastGyroTime >= 33333)
+		if (systimer->counter_lo - lastOutputTime >= 500000)
 		{
-			printf("%.1f     %.1f    %.1f\r\n", gyro.GetX(), gyro.GetY(), gyro.GetZ());
-			lastGyroTime = systimer->counter_lo;
+			printf("%.2f     %.2f    %.2f\r\n", accel.GetX(), accel.GetY(), accel.GetZ());
+			lastOutputTime = systimer->counter_lo;
 		}
 
 		if (systimer->counter_lo - lastFrameTime >= 1000000)

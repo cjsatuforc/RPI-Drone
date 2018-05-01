@@ -78,6 +78,9 @@
     <ClCompile Include="lsm303dlhc.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Orientation.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gpio.h">
@@ -137,10 +140,10 @@
     <ClInclude Include="I2CSensorInterface.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Orientation.h">
+    <ClInclude Include="lsm303dlhc.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="lsm303dlhc.h">
+    <ClInclude Include="Orientation.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

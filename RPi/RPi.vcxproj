@@ -126,6 +126,7 @@ putty -load "Raspi UART"</Command>
     <ClCompile Include="mailbox-interface.c" />
     <ClCompile Include="mailbox.cpp" />
     <ClCompile Include="kernel-main.cpp" />
+    <ClCompile Include="Orientation.cpp" />
     <ClCompile Include="rpi-aux.cpp" />
     <ClCompile Include="screen.cpp" />
     <ClCompile Include="spi.cpp" />

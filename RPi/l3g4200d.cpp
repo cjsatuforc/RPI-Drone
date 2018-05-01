@@ -3,7 +3,6 @@
 
 L3G4200D::L3G4200D() :
 	I2CSensorInterface(0x69),
-	mTimeSinceLastRead(0.0L),
 	mRawX(0),
 	mRawY(0),
 	mRawZ(0),
@@ -17,7 +16,7 @@ L3G4200D::L3G4200D() :
 	mLPFEnabled(false)
 {
 	WriteRegister8(0x24, 0x80); //Reboot Sensor Memory
-	RPI_WaitMicroSeconds(10);
+	RPI_WaitMicroSeconds(500);
 }
 
 void L3G4200D::SetOutputDataRate(OutputDataRate ODR)
@@ -82,8 +81,6 @@ void L3G4200D::SetPower(bool val)
 	e = WriteRegister8(0x20, data);
 	if (e != 0)
 		return;
-
-	mLastTickMs = RPI_GetSystemTimer()->counter();
 }
 
 void L3G4200D::SetLPFEnabled(bool val)
@@ -106,9 +103,10 @@ void L3G4200D::SetHPFEnabled(bool val)
 
 void L3G4200D::Calibrate()
 {
+	mIsCalibrated = false;
 	long double x = 0.0L, y = 0.0L, z = 0.0L;
 
-	size_t n = 8000;
+	size_t n = 1600;
 	size_t i = 0;
 	while (i < n)
 	{
@@ -138,9 +136,6 @@ void L3G4200D::Tick()
 
 	mHasNewData = stat & (1 << 3);
 	mHasOverrun = stat & (1 << 7);
-	uint64_t curMs = RPI_GetSystemTimer()->counter();
-	float deltaTime = (long double)(curMs - mLastTickMs) / 1000000.0L;
-	mLastTickMs = curMs;
 	if (mHasNewData)
 	{
 		uint8_t data[6];
@@ -160,14 +155,11 @@ void L3G4200D::Tick()
 
 			float sCorr = GetSensitivityCorrection();
 			
-			mX += mRawX * mTimeSinceLastRead * sCorr;
-			mY += mRawY * mTimeSinceLastRead * sCorr;
-			mZ += mRawZ * mTimeSinceLastRead * sCorr;
+			mX = mRawX * sCorr;
+			mY = mRawY * sCorr;
+			mZ = mRawZ * sCorr;
 		}
-
-		mTimeSinceLastRead = 0.0f;
-	}	
-	mTimeSinceLastRead += deltaTime;
+	}
 }
 
 bool L3G4200D::HasNewData() const

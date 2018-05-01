@@ -44,17 +44,18 @@ public:
 	bool HasOverrun() const;
 	bool IsCalibrated() const;
 
+	//Raw sensor measurements
 	int16_t GetRawX() const;
 	int16_t GetRawY() const;
 	int16_t GetRawZ() const;
 
+	//Last values in degrees per second
 	float GetX() const;
 	float GetY() const;
 	float GetZ() const;
 
 private:
 	void UpdateLPFHPFConfig();
-	float mTimeSinceLastRead;
 
 	int16_t mRawX;
 	int16_t mRawY;
@@ -63,8 +64,6 @@ private:
 	int16_t mAvgX;
 	int16_t mAvgY;
 	int16_t mAvgZ;
-
-	float mDeltaTime;
 
 	float mX;
 	float mY;
@@ -81,6 +80,4 @@ private:
 	FullScale mFS = FS250;
 
 	float GetSensitivityCorrection() const;
-
-	uint64_t mLastTickMs = 0;
 };
