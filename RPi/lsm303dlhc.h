@@ -37,6 +37,7 @@ public:
 	void Tick();
 	bool HasNewData() const;
 	bool HasOverrun() const;
+	bool IsSaturated() const;
 
 	int16_t GetRawX() const;
 	int16_t GetRawY() const;
@@ -84,11 +85,44 @@ public:
 		FS5Gs6, //5.6 gauss
 		FS8Gs1 //8.1 gauss
 	};
+	enum OutputDataRate
+	{
+		ODR0Hz75 = 0b000, //0.75Hz
+		ODR1Hz5 = 0b001, //1.5Hz
+		ODR3Hz = 0b010, //3Hz
+		ODR7Hz5 = 0b011, //7.5Hz
+		ODR15Hz = 0b100, //15Hz
+		ODR30Hz = 0b101, //30Hz
+		ODR75Hz = 0b110, //75Hz
+		ODR220Hz = 0b111 //220Hz
+	};
 	void SetFullScale(FullScale FS);
+	void SetOutputDataRate(OutputDataRate ODR);
 
 	void Calibrate();
 	void Tick();
+	bool HasNewData() const;
+	bool IsSaturated() const;
+
+	int16_t GetRawX() const;
+	int16_t GetRawY() const;
+	int16_t GetRawZ() const;
+
+	float GetX() const;
+	float GetY() const;
+	float GetZ() const;
 
 private:
+	int16_t mRawX;
+	int16_t mRawY;
+	int16_t mRawZ;
+
+	float mX;
+	float mY;
+	float mZ;
+
+	bool mHasNewData;
+
 	FullScale mFullScale;
+	OutputDataRate mOutputDataRate;
 };

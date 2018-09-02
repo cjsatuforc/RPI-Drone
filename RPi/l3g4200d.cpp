@@ -15,48 +15,39 @@ L3G4200D::L3G4200D() :
 	mHPFEnabled(false),
 	mLPFEnabled(false)
 {
-	WriteRegister8(0x24, 0x80); //Reboot Sensor Memory
-	RPI_WaitMicroSeconds(500);
+
 }
 
 void L3G4200D::SetOutputDataRate(OutputDataRate ODR)
 {
-	if (mODR != ODR)
-	{
-		uint8_t data = 0;
-		uint8_t e = ReadRegister8(0x20, &data);
-		if (e != 0)
-			return;
-		data &= ~0b11000000;
-		data |= ODR << 6;
-		e = WriteRegister8(0x20, data);
-		if (e != 0)
-			return;
-		mODR = ODR;
-	}
+	uint8_t data = 0;
+	uint8_t e = ReadRegister8(0x20, &data);
+	if (e != 0)
+		return;
+	data &= ~0b11000000;
+	data |= ODR << 6;
+	e = WriteRegister8(0x20, data);
+	if (e != 0)
+		return;
+	mODR = ODR;
 }
 
 void L3G4200D::SetBandwidth(Bandwidth BW)
 {
-	if (mBW != BW)
-	{
-		uint8_t data = 0;
-		uint8_t e = ReadRegister8(0x20, &data);
-		if (e != 0)
-			return;
-		data &= ~0b00110000;
-		data |= BW << 4;
-		e = WriteRegister8(0x20, data);
-		if (e != 0)
-			return;
-		mBW = BW;
-	}
+	uint8_t data = 0;
+	uint8_t e = ReadRegister8(0x20, &data);
+	if (e != 0)
+		return;
+	data &= ~0b00110000;
+	data |= BW << 4;
+	e = WriteRegister8(0x20, data);
+	if (e != 0)
+		return;
+	mBW = BW;
 }
 
 void L3G4200D::SetFullScale(FullScale FS)
 {
-	if (FS == mFS)
-		return;
 	uint8_t data = 0;
 	uint8_t e = ReadRegister8(0x23, &data);
 	if (e != 0)
@@ -85,20 +76,14 @@ void L3G4200D::SetPower(bool val)
 
 void L3G4200D::SetLPFEnabled(bool val)
 {
-	if (mLPFEnabled != val)
-	{
-		mLPFEnabled = val;
-		UpdateLPFHPFConfig();
-	}
+	mLPFEnabled = val;
+	UpdateLPFHPFConfig();
 }
 
 void L3G4200D::SetHPFEnabled(bool val)
 {
-	if (mHPFEnabled != val)
-	{
-		mHPFEnabled = val;
-		UpdateLPFHPFConfig();
-	}
+	mHPFEnabled = val;
+	UpdateLPFHPFConfig();
 }
 
 void L3G4200D::Calibrate()
@@ -170,6 +155,13 @@ bool L3G4200D::HasNewData() const
 bool L3G4200D::HasOverrun() const
 {
 	return mHasOverrun;
+}
+
+bool L3G4200D::IsSaturated() const
+{
+	return	mRawX == INT16_MAX || mRawX == INT16_MIN ||
+			mRawY == INT16_MAX || mRawY == INT16_MIN || 
+			mRawZ == INT16_MAX || mRawZ == INT16_MIN;
 }
 
 bool L3G4200D::IsCalibrated() const

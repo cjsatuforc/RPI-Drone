@@ -123,10 +123,10 @@ putty -load "Raspi UART"</Command>
     <ClCompile Include="interrupts.cpp" />
     <ClCompile Include="l3g4200d.cpp" />
     <ClCompile Include="lsm303dlhc.cpp" />
+    <ClCompile Include="MagnetoOrientation.cpp" />
     <ClCompile Include="mailbox-interface.c" />
     <ClCompile Include="mailbox.cpp" />
     <ClCompile Include="kernel-main.cpp" />
-    <ClCompile Include="Orientation.cpp" />
     <ClCompile Include="rpi-aux.cpp" />
     <ClCompile Include="screen.cpp" />
     <ClCompile Include="spi.cpp" />
@@ -145,7 +145,8 @@ putty -load "Raspi UART"</Command>
     <ClInclude Include="I2CSensorInterface.h" />
     <ClInclude Include="l3g4200d.h" />
     <ClInclude Include="lsm303dlhc.h" />
-    <ClInclude Include="Orientation.h" />
+    <ClInclude Include="MagnetoOrientation.h" />
+    <ClInclude Include="OrientationInterface.h" />
     <ClInclude Include="spi.h" />
     <ClInclude Include="string.h" />
     <ClInclude Include="definitions.h" />

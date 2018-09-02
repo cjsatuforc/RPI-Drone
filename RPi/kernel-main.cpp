@@ -75,8 +75,12 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 
 	LSM303DLHCAccelerometer accel;
 	accel.SetHighResolution(true);
-	accel.SetOutputDataRate(LSM303DLHCAccelerometer::Normal_1344Hz_LowPower_5376Hz);
+	accel.SetOutputDataRate(LSM303DLHCAccelerometer::Normal_LowPower_100Hz);
 	accel.SetFullScale(LSM303DLHCAccelerometer::FS2G);
+
+	LSM303DLHCMagnetometer magneto;
+	magneto.SetFullScale(LSM303DLHCMagnetometer::FS4Gs0);
+	magneto.SetOutputDataRate(LSM303DLHCMagnetometer::ODR75Hz);
 
 	L3G4200D gyro;
 	gyro.SetBandwidth(L3G4200D::BWLow);
@@ -97,11 +101,12 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 			if (RPI_AuxMiniUartRead() == 'r')
 				reboot();
 		}
+		magneto.Tick();
 		accel.Tick();
 		gyro.Tick();
-		if (gyro.HasOverrun() || accel.HasOverrun())
+		/*if (gyro.HasOverrun() || accel.HasOverrun())
 		{
-			if (++overrunCount > 0)
+			if (++overrunCount > 2)
 			{
 				//printf("Gyro overrun!\r\n");
 				RPI_SetGpioLo(RPI_GPIO47); //Turn LED on
@@ -111,16 +116,19 @@ void kernel_main(unsigned int r0, unsigned int r1, unsigned int atags)
 		{
 			overrunCount = 0;
 			RPI_SetGpioHi(RPI_GPIO47); //Turn LED off
-		}
-		if (systimer->counter_lo - lastOutputTime >= 500000)
+		}*/
+		RPI_SetGpioValue(RPI_GPIO47, (gyro.IsSaturated() || accel.IsSaturated() /*|| magneto.IsSaturated()*/) ? RPI_IO_LO : RPI_IO_HI);
+		if /*(systimer->counter_lo - lastOutputTime >= 500000)*/ (gyro.IsSaturated() || accel.IsSaturated() /*|| magneto.IsSaturated()*/)
 		{
-			printf("%.2f     %.2f    %.2f\r\n", accel.GetX(), accel.GetY(), accel.GetZ());
-			lastOutputTime = systimer->counter_lo;
+			printf("%i     %i    %i\r\n", gyro.GetRawX(), gyro.GetRawY(), gyro.GetRawZ());
+			printf("%i     %i    %i\r\n", accel.GetRawX(), accel.GetRawY(), accel.GetRawZ());
+			printf("%i     %i    %i\r\n\n", magneto.GetRawX(), magneto.GetRawY(), magneto.GetRawZ());
+			//lastOutputTime = systimer->counter_lo;
 		}
 
 		if (systimer->counter_lo - lastFrameTime >= 1000000)
 		{
-			printf("%u iterations per second\r\n", frame_count);
+			//printf("%u iterations per second\r\n", frame_count);
 
 			frame_count = 0;
 			lastFrameTime = systimer->counter_lo;

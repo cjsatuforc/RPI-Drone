@@ -42,6 +42,7 @@ public:
 
 	bool HasNewData() const;
 	bool HasOverrun() const;
+	bool IsSaturated() const;
 	bool IsCalibrated() const;
 
 	//Raw sensor measurements
